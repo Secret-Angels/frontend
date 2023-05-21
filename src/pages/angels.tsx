@@ -10,7 +10,14 @@ import { useEffect, useRef, useState } from "react";
 //   publicWalletClient,
 // } from "@/utils";
 // import { transactions } from "../../../broadcast/Airdrop.s.sol/5151111/run-latest.json";
-import { createWalletClient, http, custom, WalletClient, PublicClient, parseEther } from "viem";
+import {
+  createWalletClient,
+  http,
+  custom,
+  WalletClient,
+  PublicClient,
+  parseEther,
+} from "viem";
 import { useAccount, useConnect, useDisconnect } from "wagmi";
 import BackButton from "../components/BackButton";
 import {
@@ -26,7 +33,7 @@ import { goerli } from "viem/chains";
 export enum APP_STATES {
   init,
   receivedProof,
-  claimingNFT,
+  approveRecovery,
 }
 
 // The application calls contracts defined above
@@ -50,7 +57,7 @@ export default function AngelsIdentification() {
   const [appState, setAppState] = useState<APP_STATES>(APP_STATES.init);
   const [responseBytes, setResponseBytes] = useState<string>("");
   const [contractError, setContractError] = useState<string>("");
-  const [tokenId, setTokenId] = useState<{ id: string }>();
+  const [approved, setApproved] = useState(false);
   const [walletClient, setWalletClient] = useState<WalletClient>(
     createWalletClient({
       chain: goerli,
@@ -61,7 +68,8 @@ export default function AngelsIdentification() {
 
   const { address, isConnected } = useAccount();
   const lastAddress = useRef<string | null>(null);
-  const { connect, connectors, error, isLoading, pendingConnector } = useConnect();
+  const { connect, connectors, error, isLoading, pendingConnector } =
+    useConnect();
   const { disconnect } = useDisconnect();
 
   useEffect(() => {
@@ -74,18 +82,6 @@ export default function AngelsIdentification() {
         }),
       }) as WalletClient
     );
-
-    // const sendFund = async (address: `0x${string}`) => {
-    //   await publicWalletClient.sendTransaction({
-    //     to: address,
-    //     value: parseEther("5"),
-    //   });
-    // };
-
-    // if (address && address !== lastAddress.current) {
-    //   lastAddress.current = address;
-    //   sendFund(address as `0x${string}`);
-    // }
   }, [address]);
 
   // solves hydration errors with wagmi
@@ -103,40 +99,95 @@ export default function AngelsIdentification() {
   // It is called with the responseBytes returned by the Sismo Vault
   // The responseBytes is a string that contains plenty of information about the user proofs and additional parameters that should hold with respect to the proofs
   // You can learn more about the responseBytes format here: https://docs.sismo.io/build-with-sismo-connect/technical-documentation/client#getresponsebytes
-  // async function claimWithSismo(responseBytes: string) {
-  //   setAppState(APP_STATES.claimingNFT);
-  //   // switch the network
-  //   await switchNetwork(userChain);
-  //   try {
-  //     const tokenId = await callContract({
-  //       contractAddress,
-  //       responseBytes,
-  //       userChain,
-  //       address: address as `0x${string}`,
-  //       publicClient,
-  //       walletClient,
-  //     });
-  //     // If the proof is valid, we update the user react state to show the tokenId
-  //     setTokenId({ id: tokenId });
-  //   } catch (e) {
-  //     setContractError(handleVerifyErrors(e));
-  //   } finally {
-  //     setAppState(APP_STATES.init);
-  //   }
-  // }
-
-  console.log("Response Byte", responseBytes);
-  console.log("config", sismoConnectConfig);
+  async function recoverWithSismo(responseBytes: string) {
+    setAppState(APP_STATES.approveRecovery);
+    // switch the network
+    // await switchNetwork(userChain);
+    // try {
+    //   await callContract({
+    //     contractAddress,
+    //     responseBytes,
+    //     userChain,
+    //     address: address as `0x${string}`,
+    //     publicClient,
+    //     walletClient,
+    //   });
+    // } catch (e) {
+    //   setContractError(handleVerifyErrors(e));
+    // } finally {
+    //   setAppState(APP_STATES.init);
+    setApproved(true);
+    // }
+  }
 
   return (
     <>
       <BackButton />
       <div className="container">
-        {!tokenId && (
+        {!approved && (
           <>
             <h1 style={{ marginBottom: 10 }}>Angels</h1>
             {address && isReady ? (
-              <p style={{ marginBottom: 40 }}></p>
+              <div className="relative">
+                <svg
+                  width="28"
+                  height="29"
+                  viewBox="0 0 117 122"
+                  fill="none"
+                  className="absolute bottom-0 left-0 "
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M1.00001 112.5V8.50009C29.5 -31.5 12 93.5001 20.5 103.5C29 113.5 99.5 100.5 111 107.5C120.2 113.1 114.833 119.5 111 122H9.00001C1.80001 122 0.666674 115.667 1.00001 112.5Z"
+                    fill="url(#paint0_linear_40_10)"
+                  />
+                  <defs>
+                    <linearGradient
+                      id="paint0_linear_40_10"
+                      x1="64"
+                      y1="52.5"
+                      x2="-19.5"
+                      y2="158"
+                      gradientUnits="userSpaceOnUse"
+                    >
+                      <stop stop-color="#0066FF" />
+                      <stop offset="1" stop-color="#0066FF" stop-opacity="0" />
+                    </linearGradient>
+                  </defs>
+                </svg>
+                <svg
+                  width="28"
+                  height="29"
+                  viewBox="0 0 117 122"
+                  fill="none"
+                  className="absolute top-0 right-0 rotate-180"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M1.00001 112.5V8.50009C29.5 -31.5 12 93.5001 20.5 103.5C29 113.5 99.5 100.5 111 107.5C120.2 113.1 114.833 119.5 111 122H9.00001C1.80001 122 0.666674 115.667 1.00001 112.5Z"
+                    fill="url(#paint0_linear_40_10)"
+                  />
+                  <defs>
+                    <linearGradient
+                      id="paint0_linear_40_10"
+                      x1="64"
+                      y1="52.5"
+                      x2="-19.5"
+                      y2="158"
+                      gradientUnits="userSpaceOnUse"
+                    >
+                      <stop stop-color="#0066FF" />
+                      <stop offset="1" stop-color="#0066FF" stop-opacity="0" />
+                    </linearGradient>
+                  </defs>
+                </svg>
+                {/* <BorderCorner _className="absolute bottom-0 left-0" /> */}
+                <p className="text-center px-5 pt-3">
+                  Play a pivotal role in assisting your ward by signing in with
+                  Sismo Connect to move his funds in case he loses access to his
+                  account.
+                </p>
+              </div>
             ) : (
               <div>
                 {connectors.map((connector) => (
@@ -151,7 +202,9 @@ export default function AngelsIdentification() {
                   >
                     Connect Wallet
                     {!connector.ready && " (unsupported)"}
-                    {isLoading && connector.id === pendingConnector?.id && " (connecting)"}
+                    {isLoading &&
+                      connector.id === pendingConnector?.id &&
+                      " (connecting)"}
                   </button>
                 ))}
 
@@ -173,7 +226,7 @@ export default function AngelsIdentification() {
             {!contractError &&
               isConnected &&
               appState != APP_STATES.receivedProof &&
-              appState != APP_STATES.claimingNFT && (
+              appState != APP_STATES.approveRecovery && (
                 <SismoConnectButton
                   // the client config created
                   config={sismoConnectConfig}
@@ -185,46 +238,42 @@ export default function AngelsIdentification() {
                   // it will be used onchain to prevent front running
                   //   signature={{ message: signMessage(address) }}
                   // onResponseBytes calls a 'setResponse' function with the responseBytes returned by the Sismo Vault
-                  onResponseBytes={(responseBytes: string) => setResponse(responseBytes)}
+                  onResponseBytes={(responseBytes: string) =>
+                    setResponse(responseBytes)
+                  }
                   // Some text to display on the button
                   text={"Connect with Sismo"}
                 />
               )}
 
             {/** Simple button to call the smart contract with the response as bytes */}
-            {/* {appState == APP_STATES.receivedProof && (
+            {appState == APP_STATES.receivedProof && (
               <button
                 className="wallet-button"
                 onClick={async () => {
-                  await claimWithSismo(responseBytes);
+                  await recoverWithSismo(responseBytes);
                 }}
-                value="Move funds"
+                value="Approve recovery"
               >
                 {" "}
                 Move funds{" "}
               </button>
-            )} */}
+            )}
             {/* {appState == APP_STATES.claimingNFT && (
               <p style={{ marginBottom: 40 }}>Claiming NFT...</p>
             )} */}
           </>
         )}
 
-        {/* {tokenId && (
+        {approved && (
           <>
-            <h1>Airdrop claimed!</h1>
-            <p style={{ marginBottom: 20 }}>
-              The user has chosen an address to receive the airdrop
+            <h1>Successfully recovered!</h1>
+            <p style={{ marginBottom: 20 }} className="text-center">
+              You have Successfully supported the recovery with your address:{" "}
+              {address}
             </p>
-            <div className="profile-container">
-              <div>
-                <h2>NFT Claimed</h2>
-                <b>tokenId: {tokenId?.id}</b>
-                <p>Address used: {address}</p>
-              </div>
-            </div>
           </>
-        )} */}
+        )}
 
         {/* {contractError !== "" && (
           <>
