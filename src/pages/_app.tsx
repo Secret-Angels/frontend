@@ -28,11 +28,11 @@ const config = createConfig({
 export default function App({ Component, pageProps }: AppProps) {
   return (
     <>
-      {/* <img
+      <img
         style={{ position: "absolute", right: 0, zIndex: -1 }}
         src="/assets/sismo-landing-art.svg"
         alt="sismo art"
-      /> */}
+      />
       <WagmiConfig config={config}>
         <Component {...pageProps} />
       </WagmiConfig>

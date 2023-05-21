@@ -9,11 +9,6 @@ export default function Home() {
 
   return (
     <div className="container ">
-      <img
-        style={{ position: "absolute", right: 0, zIndex: -1 }}
-        src="/assets/sismo-landing-art.svg"
-        alt="sismo art"
-      />
       <h1 className="">Secret Angels</h1>
       <div className="relative">
         <svg
@@ -75,7 +70,7 @@ export default function Home() {
         </p>
       </div>
       <section>
-        <ul>
+        <ul className="gap-5">
           <button
             onClick={() => router.push("/angels")}
             className={buttons_home}
