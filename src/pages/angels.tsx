@@ -144,7 +144,7 @@ export default function AngelsIdentification() {
                     disabled={!connector.ready}
                     key={connector.id}
                     onClick={() => {
-                      router.push("/secret-angels");
+                      router.push("/angels");
                       connect({ connector });
                     }}
                     className="wallet-button"
